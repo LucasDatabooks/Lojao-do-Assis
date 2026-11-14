@@ -1,36 +1,132 @@
-#include <stdio.h>      // Biblioteca para entrada, saída e arquivos
-#include <stdlib.h>     // Biblioteca para funções gerais
-#include <string.h>     // Biblioteca para manipulação de strings
-#include <ctype.h>      // Biblioteca para conversão de caracteres
+#include <stdio.h>
+#include <string.h>
+
+#define MAX_PRODUTOS 100
+
+// Estrutura pra armazenar informações do produto
+typedef struct {
+    int id;
+    char nome[50];
+    char fornecedor[50];
+    int quantidade;
+    float preco;
+} Produto;
+
+Produto produtos[MAX_PRODUTOS];
+int total_produtos = 0;
+int proximo_id = 1; // Controla o autoincrement, ja que não existe um autoincremento nativo em C
+
+// Função pra limpar o buffer de entrada
+void limpar_buffer() {
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
+}
+
+// Função pra cadastrar um produto
+void cadastrar_produto() {
+    if (total_produtos >= MAX_PRODUTOS) {
+        printf("Limite máximo de produtos atingido.\n");
+        return;
+    }
+
+    char nome[50], fornecedor[50];
+    float preco;
+    int quantidade;
+
+    // NOME
+    printf("Digite o nome do produto: ");
+    fgets(nome, sizeof(nome), stdin);
+    nome[strcspn(nome, "\n")] = '\0';
+
+    if (nome[0] == '\0') {
+        printf("O nome do produto não pode ser vazio.\n");
+        return;
+    }
+    // Checa se o nome ja foi utilizado comparando com os produtos já cadastrados
+    for (int i = 0; i < total_produtos; i++) {
+        if (strcmp(produtos[i].nome, nome) == 0) {
+            printf("O produto já está cadastrado. Digite outro nome.\n");
+            return;
+        }
+    }
+
+    // FORNECEDOR
+    printf("Digite o fornecedor do produto: ");
+    fgets(fornecedor, sizeof(fornecedor), stdin);
+    fornecedor[strcspn(fornecedor, "\n")] = '\0';
+
+    if (fornecedor[0] == '\0') {
+        printf("O fornecedor não pode ser vazio.\n");
+        return;
+    }
+
+    // QUANTIDADE
+    printf("Digite a quantidade do produto: ");
+    if (scanf("%d", &quantidade) != 1 || quantidade <= 0) {
+        printf("Quantidade inválida. Deve ser um número maior que zero.\n");
+        limpar_buffer();
+        return;
+    }
+
+    // PREÇO
+    printf("Digite o preço do produto: ");
+    if (scanf("%f", &preco) != 1 || preco <= 0) {
+        printf("Preço inválido. Deve ser um valor maior que zero.\n");
+        limpar_buffer();
+        return;
+    }
+
+    // Salva tudo na lista de produtos
+    strcpy(produtos[total_produtos].nome, nome);
+    strcpy(produtos[total_produtos].fornecedor, fornecedor);
+    produtos[total_produtos].quantidade = quantidade;
+    produtos[total_produtos].preco = preco;
+    produtos[total_produtos].id = proximo_id++; // Atribui o ID e incrementa o próximo ID
+    total_produtos++;
+
+    // Modo "a" (append) pra não apagar os produtos
+    FILE *arquivo = fopen("produtos.txt", "a"); 
+    if (arquivo == NULL) {
+        printf("Erro ao abrir o arquivo!\n");
+        return;
+    }
+
+    fprintf(arquivo, "ID: %d | Nome: %s | Fornecedor: %s | Qtd: %d | Preço: %.2f\n", produtos[total_produtos - 1].id, nome, fornecedor, quantidade, preco);
+    fclose(arquivo);
+    printf("Produto cadastrado e gravado com sucesso!\n");
+}
+
 
 int main() {
+    int opcao;
 
-    produtos(*gerarlistaprodutos); // Chama a função de produtos
-    excluir(*excluirlistaprodutos); // Chama a função de excluir produtos
-    alterar(*alterarlistaprodutos); // Chama a função de alterar produtos
-    checar(*produtos); // Chama a função de checar produtos
+    do {
+        printf("\n=== SISTEMA DE ESTOQUE ===\n");
+        printf("1. Cadastrar produto\n");
+        printf("0. Sair\n");
+        printf("Escolha uma opção: ");
+        
+        if (scanf("%d", &opcao) != 1) {
+            printf("Opção inválida!\n");
+            limpar_buffer();
+            opcao = -1; // Força o loop a continuar
+            continue;
+        }
+        limpar_buffer(); // Limpa o '\n' deixado pelo scanf antes de ir para o fgets
+
+        switch (opcao) {
+            case 1:
+                cadastrar_produto();
+                break;
+            case 0:
+                printf("Saindo do programa...\n");
+                break;
+            default:
+                printf("Opção inválida!\n");
+        }
+    } while (opcao != 0);
+
+    return 0;
 }
 
-int gerarlistaprodutos (char *listaprodutos) {
-    FILE *fp = fopen(listaprodutos, "w"); // Abre o arquivo para escrita
-    if (fp == NULL) {
-        printf("Lista de produtos não encontrada.\n");
-        return 0;
-    }
-    fclose(fp);
-    return 1;
-}
-int excluirlistaprodutos () {
-    if (remove("listaprodutos.txt") == 0)
-printf("Lista removida com sucesso!\n");
-else
-printf("Erro ao deletar lista!\n");
-return 0;
-}
-int alterarlistaprodutos (char *listaprodutos) {
-    FILE *fp = fopen(listaprodutos, "a"), *fp2 = fopen("templist", "w"), char (100) *linha;
-    if (fp == NULL || fp2 == NULL) {
-        printf("Erro ao abrir o arquivo.\n");
-        return 0;
-    } 
-}
+
