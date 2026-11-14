@@ -1,6 +1,7 @@
 #include <stdio.h>      // Biblioteca para entrada, saída e arquivos
 #include <stdlib.h>     // Biblioteca para funções gerais
 #include <string.h>     // Biblioteca para manipulação de strings
+#include <strings.h>    // Biblioteca para strcasecmp()
 #include <ctype.h>      // Biblioteca para conversão de caracteres
 
 #define MAX_PRODUTOS 100
@@ -16,14 +17,13 @@ typedef struct {
 
 Produto produtos[MAX_PRODUTOS];
 int total_produtos = 0;
-int proximo_id = 1; // Controla o autoincrement, ja que não existe um autoincremento nativo em C
+int proximo_id = 1; // Controla o autoincrement
 
 // Função pra limpar o buffer de entrada
 void limpar_buffer() {
     int c;
     while ((c = getchar()) != '\n' && c != EOF);
 }
-
 
 // Função para comparar duas strings ignorando maiúsculas e minúsculas
 int comparar_ignorando_caso(const char *s1, const char *s2) {
@@ -36,7 +36,6 @@ int comparar_ignorando_caso(const char *s1, const char *s2) {
     }
     return tolower((unsigned char)*s1) != tolower((unsigned char)*s2);
 }
-
 
 // Função pra cadastrar um produto
 void cadastrar_produto() {
@@ -58,7 +57,7 @@ void cadastrar_produto() {
         printf("O nome do produto não pode ser vazio.\n");
         return;
     }
-    // Checa se o nome ja foi utilizado comparando com os produtos já cadastrados
+    // Checa se o nome já foi utilizado comparando com os produtos já cadastrados
     for (int i = 0; i < total_produtos; i++) {
         if (comparar_ignorando_caso(produtos[i].nome, nome) == 0) {
             printf("O produto já está cadastrado. Digite outro nome.\n");
@@ -91,48 +90,121 @@ void cadastrar_produto() {
         limpar_buffer();
         return;
     }
+    limpar_buffer(); // Limpa o '\n' deixado pelo scanf
 
     // Salva tudo na lista de produtos
     strcpy(produtos[total_produtos].nome, nome);
     strcpy(produtos[total_produtos].fornecedor, fornecedor);
     produtos[total_produtos].quantidade = quantidade;
     produtos[total_produtos].preco = preco;
-    produtos[total_produtos].id = proximo_id++; // Atribui o ID e incrementa o próximo ID
+    produtos[total_produtos].id = proximo_id++;
     total_produtos++;
 
-    // Modo "a" (append) pra não apagar os produtos
+    // Modo "a" (append) pra não apagar os produtos anteriores
     FILE *arquivo = fopen("produtos.txt", "a"); 
     if (arquivo == NULL) {
         printf("Erro ao abrir o arquivo!\n");
         return;
     }
 
-    fprintf(arquivo, "ID: %d | Nome: %s | Fornecedor: %s | Qtd: %d | Preço: %.2f\n", produtos[total_produtos - 1].id, nome, fornecedor, quantidade, preco);
+    fprintf(arquivo, "ID: %d | Nome: %s | Fornecedor: %s | Qtd: %d | Preço: %.2f\n", 
+            produtos[total_produtos - 1].id, nome, fornecedor, quantidade, preco);
     fclose(arquivo);
     printf("Produto cadastrado e gravado com sucesso!\n");
 }
 
+// BUBBLE SORT A - Z
+void listar_produtos_AZ() {
+    if (total_produtos == 0) {
+        printf("Nenhum produto cadastrado.\n");
+        return;
+    }
 
+    Produto temp;
+
+    for (int i = 0; i < total_produtos - 1; i++) {
+        for (int j = 0; j < total_produtos - 1 - i; j++) {
+            // > 0 significa que produtos[j] vem DEPOIS de produtos[j + 1] (ordem A - Z)
+            if (strcasecmp(produtos[j].nome, produtos[j + 1].nome) > 0) {
+                temp = produtos[j];
+                produtos[j] = produtos[j + 1];
+                produtos[j + 1] = temp;
+            }
+        }
+    }
+
+    // Faltava exibir a lista aqui
+    printf("\n=== PRODUTOS ORDENADOS (A - Z) ===\n");
+    for (int i = 0; i < total_produtos; i++) {
+        printf("ID: %d | Nome: %s | Fornecedor: %s | Qtd: %d | Preço: %.2f\n",
+               produtos[i].id,
+               produtos[i].nome,
+               produtos[i].fornecedor,
+               produtos[i].quantidade,
+               produtos[i].preco);
+    }
+}
+
+// BUBBLE SORT Z - A
+void listar_produtos_ZA() {
+    if (total_produtos == 0) {
+        printf("Nenhum produto cadastrado.\n");
+        return;
+    }
+
+    Produto temp;
+
+    for (int i = 0; i < total_produtos - 1; i++) {
+        for (int j = 0; j < total_produtos - 1 - i; j++) {
+            // < 0 significa que produtos[j] vem ANTES de produtos[j + 1] (inverte para Z - A)
+            if (strcasecmp(produtos[j].nome, produtos[j + 1].nome) < 0) {
+                temp = produtos[j];
+                produtos[j] = produtos[j + 1];
+                produtos[j + 1] = temp;
+            }
+        }
+    }
+
+    printf("\n=== PRODUTOS ORDENADOS (Z - A) ===\n");
+    for (int i = 0; i < total_produtos; i++) {
+        printf("ID: %d | Nome: %s | Fornecedor: %s | Qtd: %d | Preço: %.2f\n",
+               produtos[i].id,
+               produtos[i].nome,
+               produtos[i].fornecedor,
+               produtos[i].quantidade,
+               produtos[i].preco);
+    }
+}
+
+// FUNÇÃO PRINCIPAL
 int main() {
     int opcao;
 
     do {
         printf("\n=== SISTEMA DE ESTOQUE ===\n");
         printf("1. Cadastrar produto\n");
+        printf("2. Listar produtos (A - Z)\n");
+        printf("3. Listar produtos (Z - A)\n");
         printf("0. Sair\n");
         printf("Escolha uma opção: ");
         
         if (scanf("%d", &opcao) != 1) {
             printf("Opção inválida!\n");
             limpar_buffer();
-            opcao = -1; // Força o loop a continuar
+            opcao = -1;
             continue;
         }
-        limpar_buffer(); // Limpa o '\n' deixado pelo scanf antes de ir para o fgets
+        limpar_buffer();
 
         switch (opcao) {
             case 1:
                 cadastrar_produto();
+                break;
+            case 2:
+                listar_produtos_AZ();
+                break;
+            case 3:
+                listar_produtos_ZA();
                 break;
             case 0:
                 printf("Saindo do programa...\n");
