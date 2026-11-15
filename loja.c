@@ -463,7 +463,7 @@ void buscar_por_categoria(Produto *vet, int total) {
         return;
     }
 
-    char termo[50]; // Categoria digitada pelo usuário
+    char termo[50];
     printf("Digite a categoria pra buscar: ");
     fgets(termo, sizeof(termo), stdin);
     termo[strcspn(termo, "\n")] = '\0';
