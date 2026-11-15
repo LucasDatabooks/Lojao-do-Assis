@@ -29,12 +29,51 @@ void limpar_buffer() {
 int comparar_ignorando_caso(const char *s1, const char *s2) {
     while (*s1 && *s2) {
         if (tolower((unsigned char)*s1) != tolower((unsigned char)*s2)) {
-            return 1; // São diferentes
+            return 1;
         }
         s1++;
         s2++;
     }
     return tolower((unsigned char)*s1) != tolower((unsigned char)*s2);
+}
+
+// Verifica se um id já existe no vetor de produtos
+int id_existe(int id) {
+    for (int i = 0; i < total_produtos; i++) {
+        if (produtos[i].id == id) {
+            return 1; // id duplicado encontrado
+        }
+    }
+    return 0;
+}
+
+// Carrega os registros do arquivo ao iniciar para evitar ids duplicados entre sessões
+void carregar_dados() {
+    FILE *arquivo = fopen("produtos.txt", "r");
+    if (arquivo == NULL) {
+        return; // Se o arquivo ainda não existe, começa do ID 1
+    }
+
+    Produto p;
+    while (fscanf(arquivo, "ID: %d | Nome: %49[^|] | Fornecedor: %49[^|] | Qtd: %d | Preço: %f\n",
+                  &p.id, p.nome, p.fornecedor, &p.quantidade, &p.preco) == 5) {
+        // Remove o espaço em branco extra antes do '|'
+        size_t len_nome = strlen(p.nome);
+        if (len_nome > 0 && p.nome[len_nome - 1] == ' ') p.nome[len_nome - 1] = '\0';
+
+        size_t len_forn = strlen(p.fornecedor);
+        if (len_forn > 0 && p.fornecedor[len_forn - 1] == ' ') p.fornecedor[len_forn - 1] = '\0';
+
+        // Só insere se não ultrapassar o limite e se o ID não estiver duplicado
+        if (total_produtos < MAX_PRODUTOS && !id_existe(p.id)) {
+            produtos[total_produtos++] = p;
+            if (p.id >= proximo_id) {
+                proximo_id = p.id + 1;
+            }
+        }
+    }
+
+    fclose(arquivo);
 }
 
 // Função pra cadastrar um produto
@@ -92,6 +131,11 @@ void cadastrar_produto() {
     }
     limpar_buffer(); // Limpa o '\n' deixado pelo scanf
 
+    // [AJUSTE 1] Garante que o próximo ID gerado não esteja duplicado
+    while (id_existe(proximo_id)) {
+        proximo_id++;
+    }
+
     // Salva tudo na lista de produtos
     strcpy(produtos[total_produtos].nome, nome);
     strcpy(produtos[total_produtos].fornecedor, fornecedor);
@@ -110,7 +154,19 @@ void cadastrar_produto() {
     fprintf(arquivo, "ID: %d | Nome: %s | Fornecedor: %s | Qtd: %d | Preço: %.2f\n", 
             produtos[total_produtos - 1].id, nome, fornecedor, quantidade, preco);
     fclose(arquivo);
-    printf("Produto cadastrado e gravado com sucesso!\n");
+    printf("Produto cadastrado e gravado com sucesso! (ID: %d)\n", produtos[total_produtos - 1].id);
+}
+
+// [AJUSTE 2] Exibe os produtos formatados como tabela alinhada
+void imprimir_tabela(const char *titulo) {
+    printf("\n=== %s ===\n", titulo);
+    printf("+-------+---------------------------+----------------------+--------+------------+\n"); // Cabeçalho da tabela
+    printf("| %-5s | %-25s | %-20s | %-6s | %-10s |\n", "ID", "NOME", "FORNECEDOR", "QTD", "PREÇO");
+    printf("+-------+---------------------------+----------------------+--------+------------+\n"); // Linha de separação
+    for (int i = 0; i < total_produtos; i++) {
+        printf("| %-5d | %-25s | %-20s | %-6d | R$ %7.2f |\n", produtos[i].id, produtos[i].nome, produtos[i].fornecedor, produtos[i].quantidade, produtos[i].preco);
+    }
+    printf("+-------+---------------------------+----------------------+--------+------------+\n"); // Linha de fechamento da tabela
 }
 
 // BUBBLE SORT A - Z
@@ -124,7 +180,7 @@ void listar_produtos_AZ() {
 
     for (int i = 0; i < total_produtos - 1; i++) {
         for (int j = 0; j < total_produtos - 1 - i; j++) {
-            // > 0 significa que produtos[j] vem DEPOIS de produtos[j + 1] (ordem A - Z)
+            // > 0 significa que produtos[j] vem depois de produtos[j + 1] (ordem A - Z)
             if (strcasecmp(produtos[j].nome, produtos[j + 1].nome) > 0) {
                 temp = produtos[j];
                 produtos[j] = produtos[j + 1];
@@ -133,16 +189,7 @@ void listar_produtos_AZ() {
         }
     }
 
-    // Faltava exibir a lista aqui
-    printf("\n=== PRODUTOS ORDENADOS (A - Z) ===\n");
-    for (int i = 0; i < total_produtos; i++) {
-        printf("ID: %d | Nome: %s | Fornecedor: %s | Qtd: %d | Preço: %.2f\n",
-               produtos[i].id,
-               produtos[i].nome,
-               produtos[i].fornecedor,
-               produtos[i].quantidade,
-               produtos[i].preco);
-    }
+    imprimir_tabela("PRODUTOS ORDENADOS (A - Z)");
 }
 
 // BUBBLE SORT Z - A
@@ -156,7 +203,7 @@ void listar_produtos_ZA() {
 
     for (int i = 0; i < total_produtos - 1; i++) {
         for (int j = 0; j < total_produtos - 1 - i; j++) {
-            // < 0 significa que produtos[j] vem ANTES de produtos[j + 1] (inverte para Z - A)
+            // < 0 significa que produtos[j] vem antes de produtos[j + 1] (inverte para Z - A)
             if (strcasecmp(produtos[j].nome, produtos[j + 1].nome) < 0) {
                 temp = produtos[j];
                 produtos[j] = produtos[j + 1];
@@ -165,19 +212,12 @@ void listar_produtos_ZA() {
         }
     }
 
-    printf("\n=== PRODUTOS ORDENADOS (Z - A) ===\n");
-    for (int i = 0; i < total_produtos; i++) {
-        printf("ID: %d | Nome: %s | Fornecedor: %s | Qtd: %d | Preço: %.2f\n",
-               produtos[i].id,
-               produtos[i].nome,
-               produtos[i].fornecedor,
-               produtos[i].quantidade,
-               produtos[i].preco);
-    }
+    imprimir_tabela("PRODUTOS ORDENADOS (Z - A)");
 }
 
 // FUNÇÃO PRINCIPAL
 int main() {
+    carregar_dados(); // Carrega dados salvos e sincroniza o próximo ID
     int opcao;
 
     do {
