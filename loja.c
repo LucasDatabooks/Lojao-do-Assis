@@ -1,14 +1,14 @@
-#include <stdio.h>      // Biblioteca padrão para entrada, saída e manipulação de arquivos
-#include <stdlib.h>     // Biblioteca padrão para funções utilitárias
-#include <string.h>     // Biblioteca para manipulação de strings (strcpy, strcspn, etc.)
-#include <strings.h>    // Biblioteca para comparação case-insensitive (strcasecmp)
-#include <ctype.h>      // Biblioteca para manipulação de caracteres (tolower)
+#include <stdio.h>      // Biblioteca padrão pra entrada, saída e manipulação de arquivos
+#include <stdlib.h>     // Biblioteca padrão pra funções utilitárias
+#include <string.h>     // Biblioteca pra manipulação de strings (strcpy, strcspn, etc.)
+#include <strings.h>    // Biblioteca pra compração case-insensitive (strcasecmp)
+#include <ctype.h>      // Biblioteca pra manipulação de caracteres (tolower)
 
 #define MAX_PRODUTOS 100 // Define a capacidade máxima do vetor de produtos
 
 // Estrutura que representa um produto no cadastro da loja
 typedef struct {
-    int id;                 // Identificador único gerado automaticamente
+    int id;                 // identificador único gerado automaticamente
     char nome[50];          // Nome do produto
     char categoria[50];     // Categoria do produto (adicionado conforme enunciado)
     char fornecedor[50];    // Nome do fornecedor
@@ -18,18 +18,18 @@ typedef struct {
 
 Produto lista[MAX_PRODUTOS]; // Vetor principal de estruturas armazenado em memória
 int total_produtos = 0;      // Contador de produtos atualmente cadastrados
-int proximo_id = 1;          // Variável global que controla o ID incremental
+int proximo_id = 1;          // Variável global que controla o id incremental
 
 // Limpa caracteres residuais do buffer de entrada (stdin)
 void limpar_buffer() {
-    int c; // Variável para armazenar cada caractere lido
+    int c; // Variável pra armazenar cada caractere lido
     while ((c = getchar()) != '\n' && c != EOF); // Descarta até encontrar quebra de linha ou fim de arquivo
 }
 
-// Compara duas strings ignorando diferenças entre maiúsculas e minúsculas (case-insensitive)
-int comparar_ignorando_caso(const char *s1, const char *s2) {
+// Compra duas strings ignorando diferenças entre maiúsculas e minúsculas (case-insensitive)
+int comprar_ignorando_caso(const char *s1, const char *s2) {
     while (*s1 && *s2) { // Percorre ambas as strings simultaneamente via ponteiros
-        if (tolower((unsigned char)*s1) != tolower((unsigned char)*s2)) { // Compara caracteres em minúsculo
+        if (tolower((unsigned char)*s1) != tolower((unsigned char)*s2)) { // Compra caracteres em minúsculo
             return 1; // Retorna 1 se forem diferentes
         }
         s1++; // Avança o ponteiro da primeira string
@@ -40,10 +40,10 @@ int comparar_ignorando_caso(const char *s1, const char *s2) {
 
 // Verifica se uma substring existe dentro de outra string ignorando maiúsculas/minúsculas
 int contem_ignorando_caso(const char *texto, const char *busca) {
-    if (*busca == '\0') return 1; // String de busca vazia sempre corresponde
+    if (*busca == '\0') return 1; // String de busca vazia
     for (; *texto != '\0'; texto++) { // Avança caractere por caractere no texto principal
-        const char *t = texto; // Ponteiro auxiliar para testar a partir da posição atual
-        const char *b = busca; // Ponteiro auxiliar para percorrer o termo buscado
+        const char *t = texto; // Ponteiro auxiliar pra testar a partir da posição atual
+        const char *b = busca; // Ponteiro auxiliar pra percorrer o termo buscado
         while (*t != '\0' && *b != '\0' && tolower((unsigned char)*t) == tolower((unsigned char)*b)) {
             t++; // Avança no texto
             b++; // Avança na busca
@@ -53,31 +53,31 @@ int contem_ignorando_caso(const char *texto, const char *busca) {
     return 0; // Não encontrou correspondência
 }
 
-// Verifica se um determinado ID já está em uso no vetor de produtos
+// Verifica se um determinado id já está em uso no vetor de produtos
 int id_existe(Produto *vet, int total, int id) {
     for (int i = 0; i < total; i++) { // Percorre todos os produtos cadastrados
         if ((vet + i)->id == id) { // Acessa o campo id via aritmética de ponteiros
-            return 1; // Retorna 1 indicando que o ID já existe
+            return 1; // Retorna 1 indicando que o id já existe
         }
     }
-    return 0; // Retorna 0 se o ID estiver livre
+    return 0; // Retorna 0 se o id estiver livre
 }
 
-// Carrega os registros salvos no arquivo texto para o vetor em memória ao iniciar
+// Carrega os registros salvos no arquivo texto pra o vetor em memória ao iniciar
 void carregar_dados(Produto *vet, int *total, int *prox_id) {
     FILE *arquivo = fopen("produtos.txt", "r"); // Abre o arquivo de dados em modo leitura
     if (arquivo == NULL) { // Verifica se o arquivo ainda não existe
-        return; // Encerra a função mantendo o cadastro vazio e ID inicial 1
+        return; // Encerra a função mantendo o cadastro vazio e id inicial 1
     }
 
     *total = 0; // Reinicia o contador de produtos em memória
-    Produto p;  // Estrutura temporária para leitura de cada linha
+    Produto p;  // Estrutura temporária pra leitura de cada linha
 
     // Lê os campos formatados de cada linha do arquivo texto
-    while (fscanf(arquivo, "ID: %d | Nome: %49[^|] | Categoria: %49[^|] | Fornecedor: %49[^|] | Qtd: %d | Preço: %f\n",
+    while (fscanf(arquivo, "id: %d | Nome: %49[^|] | Categoria: %49[^|] | Fornecedor: %49[^|] | Qtd: %d | Preço: %f\n",
                   &p.id, p.nome, p.categoria, p.fornecedor, &p.quantidade, &p.preco) == 6) {
         
-        // Remove o espaço em branco residual antes do separador '|' em cada string lida
+        // Remove o espaço em branco residual antes do seprador '|' em cada string lida
         size_t len_nome = strlen(p.nome);
         if (len_nome > 0 && p.nome[len_nome - 1] == ' ') p.nome[len_nome - 1] = '\0';
 
@@ -87,11 +87,11 @@ void carregar_dados(Produto *vet, int *total, int *prox_id) {
         size_t len_forn = strlen(p.fornecedor);
         if (len_forn > 0 && p.fornecedor[len_forn - 1] == ' ') p.fornecedor[len_forn - 1] = '\0';
 
-        // Insere no vetor apenas se houver espaço e se o ID não for duplicado
+        // Insere no vetor apenas se houver espaço e se o id não for duplicado
         if (*total < MAX_PRODUTOS && !id_existe(vet, *total, p.id)) {
             vet[*total] = p; // Armazena o produto na posição atual
             (*total)++;      // Incrementa o total de produtos carregados
-            if (p.id >= *prox_id) { // Atualiza o próximo ID disponível para evitar colisões
+            if (p.id >= *prox_id) { // Atualiza o próximo id disponível pra evitar colisões
                 *prox_id = p.id + 1;
             }
         }
@@ -102,7 +102,7 @@ void carregar_dados(Produto *vet, int *total, int *prox_id) {
 
 // Cria (ou reinicia) o arquivo principal de produtos (adaptado de gerarlistaprodutos do Lucas)
 void criar_arquivo_dados(Produto *vet, int *total, int *prox_id) {
-    char confirmacao; // Variável para confirmar a ação com o usuário
+    char confirmacao; // Variável pra confirmar a ação com o usuário
     printf("Deseja criar/zerar o arquivo produtos.txt? Isso apagara registros existentes (s/n): ");
     scanf(" %c", &confirmacao); // Lê a resposta ignorando espaços em branco
     limpar_buffer(); // Limpa o buffer de entrada
@@ -126,25 +126,25 @@ void criar_arquivo_dados(Produto *vet, int *total, int *prox_id) {
     remove("temp_produtos.txt"); // Remove o temporário vazio
 
     *total = 0; // Zera a quantidade de produtos em memória
-    *prox_id = 1; // Reinicia o contador de ID incremental
+    *prox_id = 1; // Reinicia o contador de id incremental
     (void)vet; // Mantém compatibilidade com a assinatura da função
     printf("Arquivo produtos.txt criado/reiniciado com sucesso!\n");
 }
 
 // Exibe os produtos de um vetor em formato de tabela alinhada na tela
 void imprimir_tabela(const char *titulo, Produto *vet, int total) {
-    if (total == 0) { // Verifica se há registros para exibir
-        printf("\nNenhum produto encontrado para exibir.\n");
+    if (total == 0) { // Verifica se há registros pra exibir
+        printf("\nNenhum produto encontrado pra exibir.\n");
         return;
     }
 
     printf("\n=== %s ===\n", titulo); // Imprime o título da visualização atual
     printf("+-------+---------------------------+--------------------+----------------------+--------+------------+\n");
-    printf("| %-5s | %-25s | %-18s | %-20s | %-6s | %-10s |\n", "ID", "NOME", "CATEGORIA", "FORNECEDOR", "QTD", "PREÇO");
+    printf("| %-5s | %-25s | %-18s | %-20s | %-6s | %-10s |\n", "id", "NOME", "CATEGORIA", "FORNECEDOR", "QTD", "PREÇO");
     printf("+-------+---------------------------+--------------------+----------------------+--------+------------+\n");
     
-    for (int i = 0; i < total; i++) { // Percorre o vetor usando ponteiro para imprimir cada linha
-        Produto *p = &vet[i]; // Ponteiro apontando para o produto atual
+    for (int i = 0; i < total; i++) { // Percorre o vetor usando ponteiro pra imprimir cada linha
+        Produto *p = &vet[i]; // Ponteiro apontando pra o produto atual
         printf("| %-5d | %-25s | %-18s | %-20s | %-6d | R$ %7.2f |\n",
                p->id, p->nome, p->categoria, p->fornecedor, p->quantidade, p->preco);
     }
@@ -159,7 +159,7 @@ void inserir_produto(Produto *vet, int *total, int *prox_id) {
         return;
     }
 
-    char nome[50], categoria[50], fornecedor[50]; // Buffers temporários para leitura
+    char nome[50], categoria[50], fornecedor[50]; // Buffers temporários pra leitura
     int quantidade; // Armazena a quantidade digitada
     float preco;    // Armazena o preço digitado
 
@@ -175,7 +175,7 @@ void inserir_produto(Produto *vet, int *total, int *prox_id) {
 
     // Verifica duplicidade de nome ignorando maiúsculas/minúsculas
     for (int i = 0; i < *total; i++) {
-        if (comparar_ignorando_caso(vet[i].nome, nome) == 0) {
+        if (comprar_ignorando_caso(vet[i].nome, nome) == 0) {
             printf("Erro: Produto com este nome ja esta cadastrado!\n");
             return;
         }
@@ -201,7 +201,7 @@ void inserir_produto(Produto *vet, int *total, int *prox_id) {
         return;
     }
 
-    // Leitura e validação da QUANTIDADE
+    // Leitura e validação da QUANTidADE
     printf("Digite a quantidade do produto: ");
     if (scanf("%d", &quantidade) != 1 || quantidade <= 0) { // Garante número inteiro positivo
         printf("Quantidade invalida. Deve ser maior que zero.\n");
@@ -218,9 +218,9 @@ void inserir_produto(Produto *vet, int *total, int *prox_id) {
     }
     limpar_buffer(); // Limpa o '\n' deixado pelo scanf
 
-    // Garante que o ID incremental gerado não seja duplicado
+    // Garante que o id incremental gerado não seja duplicado
     while (id_existe(vet, *total, *prox_id)) {
-        (*prox_id)++; // Incrementa até encontrar um ID livre
+        (*prox_id)++; // Incrementa até encontrar um id livre
     }
 
     // Preenche a estrutura na próxima posição livre do vetor usando ponteiro
@@ -233,7 +233,7 @@ void inserir_produto(Produto *vet, int *total, int *prox_id) {
     novo->preco = preco;
     (*total)++; // Atualiza o contador total de produtos
 
-    // Abre o arquivo em modo append ("a") para adicionar o novo registro sem apagar os anteriores
+    // Abre o arquivo em modo append ("a") pra adicionar o novo registro sem apagar os anteriores
     FILE *arquivo = fopen("produtos.txt", "a");
     if (arquivo == NULL) {
         printf("Erro ao abrir o arquivo produtos.txt!\n");
@@ -241,24 +241,24 @@ void inserir_produto(Produto *vet, int *total, int *prox_id) {
     }
 
     // Grava o registro formatado no arquivo
-    fprintf(arquivo, "ID: %d | Nome: %s | Categoria: %s | Fornecedor: %s | Qtd: %d | Preço: %.2f\n",
+    fprintf(arquivo, "id: %d | Nome: %s | Categoria: %s | Fornecedor: %s | Qtd: %d | Preço: %.2f\n",
             novo->id, novo->nome, novo->categoria, novo->fornecedor, novo->quantidade, novo->preco);
     fclose(arquivo); // Fecha o arquivo
 
-    printf("Produto cadastrado e gravado com sucesso! (ID: %d)\n", novo->id);
+    printf("Produto cadastrado e gravado com sucesso! (id: %d)\n", novo->id);
 }
 
-// Altera um produto existente utilizando arquivo temporário para evitar corrupção (lógica do Lucas)
+// Altera um produto existente utilizando arquivo temporário pra evitar corrupção (lógica do Lucas)
 void alterar_produto(Produto *vet, int total) {
     if (total == 0) { // Verifica se existem produtos cadastrados
-        printf("Nenhum produto cadastrado para alterar.\n");
+        printf("Nenhum produto cadastrado pra alterar.\n");
         return;
     }
 
-    int id_alvo; // Armazena o ID do produto que o usuário deseja editar
-    printf("Digite o ID do produto que deseja alterar: ");
+    int id_alvo; // Armazena o id do produto que o usuário deseja editar
+    printf("Digite o id do produto que deseja alterar: ");
     if (scanf("%d", &id_alvo) != 1) { // Valida a leitura numérica
-        printf("ID invalido!\n");
+        printf("id invalido!\n");
         limpar_buffer();
         return;
     }
@@ -273,17 +273,17 @@ void alterar_produto(Produto *vet, int total) {
         }
     }
 
-    if (indice == -1) { // Se não encontrou o ID, encerra
-        printf("Produto com ID %d nao encontrado.\n", id_alvo);
+    if (indice == -1) { // Se não encontrou o id, encerra
+        printf("Produto com id %d nao encontrado.\n", id_alvo);
         return;
     }
 
-    Produto *p = &vet[indice]; // Ponteiro para o produto que será editado
+    Produto *p = &vet[indice]; // Ponteiro pra o produto que será editado
     char novo_nome[50], nova_cat[50], novo_forn[50];
     int nova_qtd;
     float novo_preco;
 
-    printf("Editando produto ID %d (%s):\n", p->id, p->nome);
+    printf("Editando produto id %d (%s):\n", p->id, p->nome);
 
     // Lê e valida o novo nome
     printf("Novo nome: ");
@@ -296,7 +296,7 @@ void alterar_produto(Produto *vet, int total) {
 
     // Verifica se o novo nome já pertence a outro produto diferente deste
     for (int i = 0; i < total; i++) {
-        if (i != indice && comparar_ignorando_caso(vet[i].nome, novo_nome) == 0) {
+        if (i != indice && comprar_ignorando_caso(vet[i].nome, novo_nome) == 0) {
             printf("Erro: Ja existe outro produto com este nome.\n");
             return;
         }
@@ -344,7 +344,7 @@ void alterar_produto(Produto *vet, int total) {
     p->quantidade = nova_qtd;
     p->preco = novo_preco;
 
-    // Abre o arquivo original para leitura e um arquivo temporário para gravação segura
+    // Abre o arquivo original pra leitura e um arquivo temporário pra gravação segura
     FILE *fp = fopen("produtos.txt", "r");
     FILE *templist = fopen("temp_produtos.txt", "w");
     if (templist == NULL) {
@@ -355,7 +355,7 @@ void alterar_produto(Produto *vet, int total) {
 
     // Regrava todos os registros atualizados no arquivo temporário
     for (int i = 0; i < total; i++) {
-        fprintf(templist, "ID: %d | Nome: %s | Categoria: %s | Fornecedor: %s | Qtd: %d | Preço: %.2f\n",
+        fprintf(templist, "id: %d | Nome: %s | Categoria: %s | Fornecedor: %s | Qtd: %d | Preço: %.2f\n",
                 vet[i].id, vet[i].nome, vet[i].categoria, vet[i].fornecedor, vet[i].quantidade, vet[i].preco);
     }
 
@@ -365,20 +365,20 @@ void alterar_produto(Produto *vet, int total) {
     remove("produtos.txt"); // Remove o arquivo antigo
     rename("temp_produtos.txt", "produtos.txt"); // Substitui pelo arquivo temporário atualizado
 
-    printf("Produto ID %d alterado com sucesso!\n", id_alvo);
+    printf("Produto id %d alterado com sucesso!\n", id_alvo);
 }
 
-// Exclui um produto pelo ID utilizando arquivo temporário (técnica de segurança de dados)
+// Exclui um produto pelo id utilizando arquivo temporário (técnica de segurança de dados)
 void excluir_produto(Produto *vet, int *total) {
-    if (*total == 0) { // Verifica se há registros para excluir
-        printf("Nenhum produto cadastrado para excluir.\n");
+    if (*total == 0) { // Verifica se há registros pra excluir
+        printf("Nenhum produto cadastrado pra excluir.\n");
         return;
     }
 
-    int id_alvo; // ID do produto a ser removido
-    printf("Digite o ID do produto que deseja excluir: ");
+    int id_alvo; // id do produto a ser removido
+    printf("Digite o id do produto que deseja excluir: ");
     if (scanf("%d", &id_alvo) != 1) {
-        printf("ID invalido!\n");
+        printf("id invalido!\n");
         limpar_buffer();
         return;
     }
@@ -393,12 +393,12 @@ void excluir_produto(Produto *vet, int *total) {
         }
     }
 
-    if (indice == -1) { // Caso o ID não exista
-        printf("Produto com ID %d nao encontrado.\n", id_alvo);
+    if (indice == -1) { // Caso o id não exista
+        printf("Produto com id %d nao encontrado.\n", id_alvo);
         return;
     }
 
-    // Desloca os elementos seguintes uma posição para trás para remover o item do vetor
+    // Desloca os elementos seguintes uma posição pra trás pra remover o item do vetor
     for (int i = indice; i < (*total) - 1; i++) {
         vet[i] = vet[i + 1];
     }
@@ -415,7 +415,7 @@ void excluir_produto(Produto *vet, int *total) {
 
     // Escreve no arquivo temporário apenas os produtos que permaneceram no vetor
     for (int i = 0; i < *total; i++) {
-        fprintf(templist, "ID: %d | Nome: %s | Categoria: %s | Fornecedor: %s | Qtd: %d | Preço: %.2f\n",
+        fprintf(templist, "id: %d | Nome: %s | Categoria: %s | Fornecedor: %s | Qtd: %d | Preço: %.2f\n",
                 vet[i].id, vet[i].nome, vet[i].categoria, vet[i].fornecedor, vet[i].quantidade, vet[i].preco);
     }
 
@@ -423,9 +423,9 @@ void excluir_produto(Produto *vet, int *total) {
     fclose(templist); // Fecha o temporário
 
     remove("produtos.txt"); // Apaga o arquivo antigo
-    rename("temp_produtos.txt", "produtos.txt"); // Renomeia o temporário para o nome oficial
+    rename("temp_produtos.txt", "produtos.txt"); // Renomeia o temporário pra o nome oficial
 
-    printf("Produto ID %d excluido com sucesso!\n", id_alvo);
+    printf("Produto id %d excluido com sucesso!\n", id_alvo);
 }
 
 // Busca produtos por nome (case-insensitive) e exibe o resultado em tabela
@@ -436,15 +436,15 @@ void buscar_por_nome(Produto *vet, int total) {
     }
 
     char termo[50]; // Termo de busca digitado pelo usuário
-    printf("Digite o nome (ou parte do nome) para buscar: ");
+    printf("Digite o nome pra buscar: ");
     fgets(termo, sizeof(termo), stdin);
     termo[strcspn(termo, "\n")] = '\0';
 
-    Produto encontrados[MAX_PRODUTOS]; // Vetor auxiliar para armazenar os resultados
+    Produto encontrados[MAX_PRODUTOS]; // Vetor auxiliar pra armazenar os resultados
     int qtd_encontrados = 0; // Contador de correspondências
 
     for (int i = 0; i < total; i++) { // Percorre toda a lista de produtos
-        if (contem_ignorando_caso(vet[i].nome, termo)) { // Comparação case-insensitive
+        if (contem_ignorando_caso(vet[i].nome, termo)) { // Compração case-insensitive
             encontrados[qtd_encontrados++] = vet[i]; // Copia o produto encontrado
         }
     }
@@ -464,15 +464,15 @@ void buscar_por_categoria(Produto *vet, int total) {
     }
 
     char termo[50]; // Categoria digitada pelo usuário
-    printf("Digite a categoria para buscar: ");
+    printf("Digite a categoria pra buscar: ");
     fgets(termo, sizeof(termo), stdin);
     termo[strcspn(termo, "\n")] = '\0';
 
-    Produto encontrados[MAX_PRODUTOS]; // Vetor auxiliar para armazenar os resultados
+    Produto encontrados[MAX_PRODUTOS]; // Vetor auxiliar pra armazenar os resultados
     int qtd_encontrados = 0; // Contador de correspondências
 
     for (int i = 0; i < total; i++) { // Percorre toda a lista de produtos
-        if (contem_ignorando_caso(vet[i].categoria, termo)) { // Comparação case-insensitive
+        if (contem_ignorando_caso(vet[i].categoria, termo)) { // Compração case-insensitive
             encontrados[qtd_encontrados++] = vet[i]; // Copia o produto encontrado
         }
     }
@@ -492,19 +492,19 @@ void ordenar_e_exibir(Produto *vet, int total, int modo) {
         return;
     }
 
-    // Cria uma cópia temporária do vetor para não alterar a ordem original nem o arquivo
+    // Cria uma cópia temporária do vetor pra não alterar a ordem original nem o arquivo
     Produto copia[MAX_PRODUTOS];
     for (int i = 0; i < total; i++) {
         copia[i] = vet[i];
     }
 
-    Produto temp; // Variável auxiliar para a troca de posições no Bubble Sort
+    Produto temp; // Variável auxiliar pra a troca de posições no Bubble Sort
 
     // Algoritmo Bubble Sort com ponteiros
     for (int i = 0; i < total - 1; i++) {
         for (int j = 0; j < total - 1 - i; j++) {
-            Produto *a = &copia[j];     // Ponteiro para o elemento atual
-            Produto *b = &copia[j + 1]; // Ponteiro para o próximo elemento
+            Produto *a = &copia[j];     // Ponteiro pra o elemento atual
+            Produto *b = &copia[j + 1]; // Ponteiro pra o próximo elemento
             int trocar = 0;             // Flag que indica se deve trocar os elementos
 
             if (modo == 1 && strcasecmp(a->nome, b->nome) > 0) {
@@ -532,21 +532,21 @@ void ordenar_e_exibir(Produto *vet, int total, int modo) {
     else if (modo == 4) imprimir_tabela("PRODUTOS ORDENADOS POR PRECO (MAIOR -> MENOR)", copia, total);
 }
 
-// Exporta todos os dados do vetor para um arquivo CSV separado por vírgulas
+// Exporta todos os dados do vetor pra um arquivo CSV seprado por vírgulas
 void exportar_csv(Produto *vet, int total) {
     if (total == 0) {
-        printf("Nenhum produto cadastrado para exportar.\n");
+        printf("Nenhum produto cadastrado pra exportar.\n");
         return;
     }
 
-    FILE *csv = fopen("produtos.csv", "w"); // Abre/cria o arquivo CSV para escrita
+    FILE *csv = fopen("produtos.csv", "w"); // Abre/cria o arquivo CSV pra escrita
     if (csv == NULL) {
         printf("Erro ao criar o arquivo produtos.csv!\n");
         return;
     }
 
-    // Escreve o cabeçalho das colunas separado por vírgula
-    fprintf(csv, "ID,Nome,Categoria,Fornecedor,Quantidade,Preco\n");
+    // Escreve o cabeçalho das colunas seprado por vírgula
+    fprintf(csv, "id,Nome,Categoria,Fornecedor,Quantidade,Preco\n");
 
     // Escreve cada produto em uma linha do CSV
     for (int i = 0; i < total; i++) {
@@ -555,7 +555,7 @@ void exportar_csv(Produto *vet, int total) {
     }
 
     fclose(csv); // Fecha o arquivo CSV
-    printf("Dados exportados com sucesso para 'produtos.csv'!\n");
+    printf("Dados exportados com sucesso pra 'produtos.csv'!\n");
 }
 
 // Função principal com o menu interativo do sistema
@@ -576,7 +576,7 @@ int main() {
         printf("9. Ordenar por nome (Z - A)\n");
         printf("10. Ordenar por preco (Menor -> Maior)\n");
         printf("11. Ordenar por preco (Maior -> Menor)\n");
-        printf("12. Exportar dados para CSV\n");
+        printf("12. Exportar dados pra CSV\n");
         printf("0. Sair\n");
         printf("Escolha uma opcao: ");
 
